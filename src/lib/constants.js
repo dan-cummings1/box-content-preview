@@ -78,6 +78,9 @@ export const PERMISSION_PREVIEW = 'can_preview';
 
 export const API_HOST = 'https://api.box.com';
 export const APP_HOST = 'https://app.box.com';
+export const DOWNLOAD_HOST = 'https://dl.boxcloud.com';
+// eslint-disable-next-line no-useless-escape
+export const PROTOCOL_HOST_REGEX = /^.*\/\/[^\/]+:?[0-9]?/;
 
 export const ORIGINAL_REP_NAME = 'ORIGINAL';
 export const PRELOAD_REP_NAME = 'jpg';

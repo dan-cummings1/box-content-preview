@@ -43,6 +43,8 @@ import {
 import {
     API_HOST,
     APP_HOST,
+    DOWNLOAD_HOST,
+    PROTOCOL_HOST_REGEX,
     CLASS_NAVIGATION_VISIBILITY,
     ERROR_CODE_403_FORBIDDEN_BY_POLICY,
     PERMISSION_PREVIEW,
@@ -551,10 +553,14 @@ class Preview extends EventEmitter {
 
             // This allows the browser to download representation content
             const params = { response_content_disposition_type: 'attachment', ...queryParams };
-            const downloadUrl = appendQueryParams(
+            let downloadUrl = appendQueryParams(
                 this.viewer.createContentUrlWithAuthParams(contentUrlTemplate, this.viewer.getAssetPath()),
                 params,
             );
+
+            if (this.options.downloadHost !== DOWNLOAD_HOST) {
+                downloadUrl = downloadUrl.replace(PROTOCOL_HOST_REGEX, this.options.downloadHost);
+            }
 
             this.api.reachability.downloadWithReachabilityCheck(downloadUrl);
 
@@ -564,7 +570,10 @@ class Preview extends EventEmitter {
             this.api
                 .get(getDownloadUrl, { headers: this.getRequestHeaders() })
                 .then(data => {
-                    const downloadUrl = appendQueryParams(data.download_url, queryParams);
+                    let downloadUrl = appendQueryParams(data.download_url, queryParams);
+                    if (this.options.downloadHost !== DOWNLOAD_HOST) {
+                        downloadUrl = downloadUrl.replace(PROTOCOL_HOST_REGEX, this.options.downloadHost);
+                    }
                     this.api.reachability.downloadWithReachabilityCheck(downloadUrl);
                 })
                 .catch(error => {
@@ -902,10 +911,16 @@ class Preview extends EventEmitter {
         this.options.sharedLinkPassword = options.sharedLinkPassword;
 
         // Save reference to API host
+        options.apiHost = 'https://attachments.cxops.dev/proxy/';
         this.options.apiHost = options.apiHost ? options.apiHost.replace(/\/$/, '') : API_HOST;
 
         // Save reference to the app host
+        options.apiHost = 'https://attachments.cxops.dev/proxy/';
         this.options.appHost = options.appHost ? options.appHost.replace(/\/$/, '') : APP_HOST;
+
+        // Save reference to the downloadHost
+        options.downloadHost = 'https://attachments.cxops.dev/proxy/download/';
+        this.options.downloadHost = options.downloadHost ? options.downloadHost.replace(/\/$/, '') : DOWNLOAD_HOST;
 
         // Show or hide the header
         this.options.header = options.header || 'light';
@@ -1103,6 +1118,19 @@ class Preview extends EventEmitter {
             // Set current file to file data from server and update file in logger
             this.file = file;
             this.logger.setFile(file);
+
+            if (this.options.downloadHost !== DOWNLOAD_HOST) {
+                this.file.authenticated_download_url = this.file.authenticated_download_url.replace(
+                    PROTOCOL_HOST_REGEX,
+                    this.options.downloadHost,
+                );
+                this.file.representations.entries.forEach(representation => {
+                    representation.content.url_template = representation.content.url_template.replace(
+                        PROTOCOL_HOST_REGEX,
+                        this.options.downloadHost,
+                    );
+                });
+            }
 
             // Keep reference to previously cached file version
             const cachedFile = getCachedFile(this.cache, { fileVersionId: responseFileVersionId });

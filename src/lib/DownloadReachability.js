@@ -50,9 +50,9 @@ class DownloadReachability {
     static isCustomDownloadHost(downloadUrl) {
         // A custom download host:
         // 1. does not begin with the default "dl." and
-        // 2. ends with boxcloud.com
+        // 2. does not contain boxcloud.com
         return (
-            !downloadUrl.startsWith(DEFAULT_DOWNLOAD_HOST_PREFIX) && downloadUrl.indexOf(PROD_CUSTOM_HOST_SUFFIX) !== -1
+            !downloadUrl.startsWith(DEFAULT_DOWNLOAD_HOST_PREFIX) && downloadUrl.indexOf(PROD_CUSTOM_HOST_SUFFIX) === -1
         );
     }
 
