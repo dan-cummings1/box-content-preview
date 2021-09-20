@@ -911,15 +911,12 @@ class Preview extends EventEmitter {
         this.options.sharedLinkPassword = options.sharedLinkPassword;
 
         // Save reference to API host
-        options.apiHost = 'https://attachments.cxops.dev/proxy/';
         this.options.apiHost = options.apiHost ? options.apiHost.replace(/\/$/, '') : API_HOST;
 
         // Save reference to the app host
-        options.apiHost = 'https://attachments.cxops.dev/proxy/';
         this.options.appHost = options.appHost ? options.appHost.replace(/\/$/, '') : APP_HOST;
 
         // Save reference to the downloadHost
-        options.downloadHost = 'https://attachments.cxops.dev/proxy/download/';
         this.options.downloadHost = options.downloadHost ? options.downloadHost.replace(/\/$/, '') : DOWNLOAD_HOST;
 
         // Show or hide the header
